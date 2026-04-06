@@ -1,0 +1,621 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>COFFlow | Covalent Organic Framework Generator</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://3dmol.org/build/3Dmol-min.js"></script>
+    <link rel="stylesheet" href="./css/main.css">
+</head>
+<body>
+    <!-- Ambient Background -->
+    <div class="ambient-bg">
+        <div class="gradient-orb orb-1"></div>
+        <div class="gradient-orb orb-2"></div>
+        <div class="gradient-orb orb-3"></div>
+    </div>
+
+    <!-- Header -->
+    <header class="main-header">
+        <div class="logo">
+            <div class="logo-icon">
+                <svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="20" cy="8" r="4" fill="currentColor"/>
+                    <circle cx="8" cy="28" r="4" fill="currentColor"/>
+                    <circle cx="32" cy="28" r="4" fill="currentColor"/>
+                    <line x1="20" y1="12" x2="10" y2="24" stroke="currentColor" stroke-width="2"/>
+                    <line x1="20" y1="12" x2="30" y2="24" stroke="currentColor" stroke-width="2"/>
+                    <line x1="12" y1="28" x2="28" y2="28" stroke="currentColor" stroke-width="2"/>
+                </svg>
+            </div>
+            <span class="logo-text">COFFlow</span>
+        </div>
+        <nav class="nav-links">
+            <a href="#" class="nav-link active" id="nav-generator">Generator</a>
+            <a href="#" class="nav-link" id="nav-docs">Documentation</a>
+            <a href="#" class="nav-link" id="nav-about">About</a>
+        </nav>
+        <div class="header-actions">
+            <button class="btn btn-icon theme-toggle" id="theme-toggle" title="Toggle theme">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="5"/>
+                    <line x1="12" y1="1" x2="12" y2="3"/>
+                    <line x1="12" y1="21" x2="12" y2="23"/>
+                    <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/>
+                    <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
+                    <line x1="1" y1="12" x2="3" y2="12"/>
+                    <line x1="21" y1="12" x2="23" y2="12"/>
+                    <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/>
+                    <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+                </svg>
+            </button>
+            <div class="status-indicator" id="status-indicator">
+                <div class="status-dot"></div>
+                <span class="status-text">Checking...</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Left Panel: Building Blocks -->
+        <section class="panel building-blocks-panel">
+            <div class="panel-header collapsible-header" id="main-db-header">
+                <div class="collapse-toggle">
+                    <svg class="collapse-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
+                        <polyline points="6 9 12 15 18 9"/>
+                    </svg>
+                    <h2>Building Blocks Database</h2>
+                </div>
+                <button class="btn btn-icon" id="refresh-bb-btn" title="Refresh list">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M23 4v6h-6M1 20v-6h6M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/>
+                    </svg>
+                </button>
+            </div>
+
+            <!-- Collapsible main database content -->
+            <div class="collapsible-content" id="main-db-content">
+
+            <!-- Category Tabs -->
+            <div class="bb-category-tabs">
+                <button class="bb-category-tab active" data-category="linkers">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="5" y1="12" x2="19" y2="12"/>
+                        <circle cx="5" cy="12" r="3"/>
+                        <circle cx="19" cy="12" r="3"/>
+                    </svg>
+                    <span>Linkers</span>
+                    <span class="bb-count-badge" id="linker-count">0</span>
+                </button>
+                <button class="bb-category-tab" data-category="nodes">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="3"/>
+                        <circle cx="12" cy="4" r="2"/>
+                        <circle cx="4" cy="16" r="2"/>
+                        <circle cx="20" cy="16" r="2"/>
+                        <line x1="12" y1="9" x2="12" y2="6"/>
+                        <line x1="10" y1="14" x2="6" y2="16"/>
+                        <line x1="14" y1="14" x2="18" y2="16"/>
+                    </svg>
+                    <span>Nodes</span>
+                    <span class="bb-count-badge" id="node-count">0</span>
+                </button>
+            </div>
+
+            <!-- Search Box -->
+            <div class="bb-search-container">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="11" cy="11" r="8"/>
+                    <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                </svg>
+                <input type="text" id="bb-search" placeholder="Search building blocks...">
+            </div>
+
+            <!-- Connection Points Filter (for Nodes) -->
+            <div class="cp-filter-container" id="cp-filter-container" style="display: none;">
+                <div class="cp-filter-label">Filter by Connection Points:</div>
+                <div class="cp-filter-buttons" id="cp-filter-buttons">
+                    <button class="cp-filter-btn active" data-cp="all">All</button>
+                </div>
+            </div>
+
+            <!-- Atom Count Filter (for Linkers) -->
+            <div class="atom-filter-container" id="atom-filter-container" style="display: none;">
+                <div class="atom-filter-label">Filter by Atom Count:</div>
+                <div class="atom-filter-buttons" id="atom-filter-buttons">
+                    <button class="atom-filter-btn active" data-atoms="all">All</button>
+                </div>
+            </div>
+
+            <!-- Building Blocks List -->
+            <div class="bb-list-container">
+                <div class="bb-list" id="bb-list">
+                    <div class="loading-placeholder">
+                        <div class="spinner"></div>
+                        <span>Loading building blocks...</span>
+                    </div>
+                </div>
+            </div>
+
+            </div><!-- end collapsible-content for main DB -->
+
+            <!-- Custom Fragment Upload -->
+            <div class="bb-upload-section">
+                <div class="upload-label collapsible-header" id="custom-db-header">
+                    <div class="collapse-toggle">
+                        <svg class="collapse-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
+                            <polyline points="6 9 12 15 18 9"/>
+                        </svg>
+                        <span>My Custom Building Blocks</span>
+                    </div>
+                </div>
+                <div class="collapsible-content" id="custom-db-content">
+                
+                <!-- User Database Selection -->
+                <div class="user-db-section" id="user-db-section">
+                    <div class="user-db-selector">
+                        <select id="user-db-select" class="user-db-dropdown">
+                            <option value="">-- Select or Create Database --</option>
+                        </select>
+                        <button class="btn btn-small btn-icon" id="create-db-btn" title="Create New Database">+</button>
+                    </div>
+                </div>
+                
+                <div class="upload-drop-zone" id="upload-drop-zone">
+                    <span class="upload-icon">&uarr;</span>
+                    <span class="upload-text">Drop .xyz file here or <span class="upload-btn-label" id="upload-browse-btn">browse</span></span>
+                    <input type="file" id="upload-file-input" accept=".xyz" hidden>
+                </div>
+                <div class="upload-file-info" id="upload-file-info" style="display:none;">
+                    <span class="upload-filename" id="upload-filename"></span>
+                    <button class="upload-clear-btn" id="upload-clear-btn" title="Clear">&times;</button>
+                </div>
+                <div class="upload-controls" id="upload-controls" style="display:none;">
+                    <div class="upload-type-selector">
+                        <button class="upload-type-btn" data-type="linker">Linker</button>
+                        <button class="upload-type-btn" data-type="node">Node</button>
+                    </div>
+                    <div class="upload-cp-selector" id="upload-cp-selector" style="display:none;">
+                        <div class="upload-cp-label">Connection Points:</div>
+                        <div class="upload-cp-buttons" id="upload-cp-buttons">
+                            <button class="upload-cp-btn" data-cp="3">3 CP</button>
+                            <button class="upload-cp-btn" data-cp="4">4 CP</button>
+                            <button class="upload-cp-btn" data-cp="6">6 CP</button>
+                        </div>
+                    </div>
+                    <button class="upload-submit-btn" id="upload-submit-btn" disabled>Add to Database</button>
+                </div>
+                <div class="upload-status" id="upload-status" style="display:none;"></div>
+
+                <!-- User's Building Blocks -->
+                <div class="user-bb-section" id="user-bb-section" style="display:none;">
+                    <div class="user-bb-header">
+                        <span class="user-bb-title">My Uploads</span>
+                        <span class="user-bb-db-name" id="user-bb-db-name"></span>
+                        <button class="btn btn-icon btn-small" id="delete-db-btn" title="Delete Database">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
+                                <polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/>
+                            </svg>
+                        </button>
+                    </div>
+                    <div class="user-bb-tabs">
+                        <button class="user-bb-tab active" data-type="linkers">Linkers (<span id="user-linker-count">0</span>)</button>
+                        <button class="user-bb-tab" data-type="nodes">Nodes (<span id="user-node-count">0</span>)</button>
+                    </div>
+                    <div class="user-bb-list" id="user-bb-list">
+                        <div class="loading-placeholder">
+                            <span>No uploads yet</span>
+                        </div>
+                    </div>
+                </div>
+                </div><!-- end collapsible-content for custom DB -->
+            </div><!-- end bb-upload-section -->
+        </section>
+
+        <!-- Center Panel: Configuration & Visualization -->
+        <section class="panel center-panel">
+            <div class="tabs">
+                <button class="tab active" data-tab="configure">Configure</button>
+                <button class="tab" data-tab="preview">Preview</button>
+                <button class="tab" data-tab="results">Results</button>
+                <button class="tab" data-tab="examples">Examples</button>
+            </div>
+
+            <!-- Configure Tab -->
+            <div class="tab-content active" id="tab-configure">
+                <!-- Selected Building Blocks with Preview -->
+                <div class="config-selected-container">
+                    <!-- Linkers Row: Selection + Preview -->
+                    <div class="config-row linker-row">
+                        <div class="config-section selected-section">
+                            <div class="config-section-header">
+                                <h3>
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <line x1="5" y1="12" x2="19" y2="12"/>
+                                        <circle cx="5" cy="12" r="3"/>
+                                        <circle cx="19" cy="12" r="3"/>
+                                    </svg>
+                                    Selected Linkers
+                                </h3>
+                                <span class="section-count" id="selected-linker-count">0</span>
+                            </div>
+                            <div class="selected-bbs linkers-section" id="selected-linkers">
+                                <div class="empty-state small">
+                                    <p>Click linkers to add</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="config-preview-section linker-preview">
+                            <div class="config-preview-header">
+                                <span id="linker-preview-title">Linker Preview</span>
+                            </div>
+                            <div class="viewer-3d config-viewer" id="linker-preview-viewer">
+                                <div class="viewer-placeholder">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1">
+                                        <line x1="5" y1="12" x2="19" y2="12"/>
+                                        <circle cx="5" cy="12" r="2"/>
+                                        <circle cx="19" cy="12" r="2"/>
+                                    </svg>
+                                    <p>Linker</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Nodes Row: Selection + Preview -->
+                    <div class="config-row node-row">
+                        <div class="config-section selected-section">
+                            <div class="config-section-header">
+                                <h3>
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <circle cx="12" cy="12" r="3"/>
+                                        <circle cx="12" cy="4" r="2"/>
+                                        <circle cx="4" cy="16" r="2"/>
+                                        <circle cx="20" cy="16" r="2"/>
+                                        <line x1="12" y1="9" x2="12" y2="6"/>
+                                        <line x1="10" y1="14" x2="6" y2="16"/>
+                                        <line x1="14" y1="14" x2="18" y2="16"/>
+                                    </svg>
+                                    Selected Nodes
+                                </h3>
+                                <span class="section-count" id="selected-node-count">0</span>
+                            </div>
+                            <div class="selected-bbs nodes-section" id="selected-nodes">
+                                <div class="empty-state small">
+                                    <p>Click nodes to add</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="config-preview-section node-preview">
+                            <div class="config-preview-header">
+                                <span id="node-preview-title">Node Preview</span>
+                            </div>
+                            <div class="viewer-3d config-viewer" id="node-preview-viewer">
+                                <div class="viewer-placeholder">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1">
+                                        <circle cx="12" cy="12" r="3"/>
+                                        <circle cx="12" cy="4" r="2"/>
+                                        <circle cx="20" cy="16" r="2"/>
+                                        <circle cx="4" cy="16" r="2"/>
+                                    </svg>
+                                    <p>Node</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Generation Summary -->
+                <div class="generation-summary" id="generation-summary">
+                    <div class="summary-item">
+                        <span class="summary-label">Total Building Blocks:</span>
+                        <span class="summary-value" id="total-bb-count">0</span>
+                    </div>
+                </div>
+
+                <div class="config-section">
+                    <h3>Generation Parameters</h3>
+                    <div class="param-grid">
+                        <div class="param-item supercell-param">
+                            <label>Supercell Size</label>
+                            <div class="supercell-controls">
+                                <div class="supercell-axis">
+                                    <span class="axis-label">X</span>
+                                    <div class="stepper stepper-small">
+                                        <button class="stepper-btn" data-action="decrement" data-target="supercell-x">−</button>
+                                        <input type="number" id="supercell-x" value="2" min="1" max="5">
+                                        <button class="stepper-btn" data-action="increment" data-target="supercell-x">+</button>
+                                    </div>
+                                </div>
+                                <div class="supercell-axis">
+                                    <span class="axis-label">Y</span>
+                                    <div class="stepper stepper-small">
+                                        <button class="stepper-btn" data-action="decrement" data-target="supercell-y">−</button>
+                                        <input type="number" id="supercell-y" value="2" min="1" max="5">
+                                        <button class="stepper-btn" data-action="increment" data-target="supercell-y">+</button>
+                                    </div>
+                                </div>
+                                <div class="supercell-axis">
+                                    <span class="axis-label">Z</span>
+                                    <div class="stepper stepper-small">
+                                        <button class="stepper-btn" data-action="decrement" data-target="supercell-z">−</button>
+                                        <input type="number" id="supercell-z" value="1" min="1" max="5">
+                                        <button class="stepper-btn" data-action="increment" data-target="supercell-z">+</button>
+                                    </div>
+                                </div>
+                            </div>
+                            <span class="param-hint" id="supercell-hint">Creates 2×2×1 supercell</span>
+                        </div>
+                        <div class="param-item">
+                            <label>Output Name</label>
+                            <input type="text" id="output-name" value="cof_generated" placeholder="Output filename">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="action-bar">
+                    <div class="model-selector-container" id="model-selector-container" style="display: none;">
+                        <label for="model-select">Model</label>
+                        <select id="model-select" class="model-dropdown">
+                            <option value="">Loading...</option>
+                        </select>
+                    </div>
+                    <button class="btn btn-primary btn-large" id="generate-btn" disabled>
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polygon points="5 3 19 12 5 21 5 3"/>
+                        </svg>
+                        Generate COF Structure
+                    </button>
+                </div>
+            </div>
+
+            <!-- Preview Tab -->
+            <div class="tab-content" id="tab-preview">
+                <div class="viewer-container">
+                    <div class="viewer-header">
+                        <span id="preview-title">Select a building block to preview</span>
+                        <div class="viewer-controls">
+                            <button class="btn btn-icon btn-small" id="reset-view" title="Reset view">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M3 12a9 9 0 109-9 9.75 9.75 0 00-6.74 2.74L3 8"/>
+                                    <path d="M3 3v5h5"/>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="viewer-3d" id="preview-viewer">
+                        <div class="viewer-placeholder">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1">
+                                <path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/>
+                                <polyline points="3.27 6.96 12 12.01 20.73 6.96"/>
+                                <line x1="12" y1="22.08" x2="12" y2="12"/>
+                            </svg>
+                            <p>3D Preview</p>
+                        </div>
+                    </div>
+                    <div class="atom-info" id="atom-info">
+                        <div class="info-row">
+                            <span class="info-label">Atoms</span>
+                            <span class="info-value" id="info-atoms">—</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Formula</span>
+                            <span class="info-value" id="info-formula">—</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Results Tab -->
+            <div class="tab-content" id="tab-results">
+                <div class="results-container" id="results-container">
+                    <div class="empty-state">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                            <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
+                            <polyline points="14 2 14 8 20 8"/>
+                            <line x1="16" y1="13" x2="8" y2="13"/>
+                            <line x1="16" y1="17" x2="8" y2="17"/>
+                            <polyline points="10 9 9 9 8 9"/>
+                        </svg>
+                        <p>Generated structures will appear here</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Examples Tab -->
+            <div class="tab-content" id="tab-examples">
+                <div class="examples-header">
+                    <h3>COF Examples</h3>
+                    <p class="examples-description">
+                        Pre-defined building block recipes from validated COF structures.
+                        Click <strong>Load Recipe</strong> to auto-populate the Configure tab.
+                    </p>
+                </div>
+                <div class="examples-list" id="examples-list">
+                    <div class="empty-state">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                            <path d="M4 19.5A2.5 2.5 0 016.5 17H20"/>
+                            <path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/>
+                        </svg>
+                        <p>Loading examples...</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Right Panel: Output -->
+        <section class="panel output-panel">
+            <div class="panel-header">
+                <h2>Output</h2>
+            </div>
+            
+            <div class="output-panel-content">
+                <div class="output-viewer">
+                    <div class="output-tabs">
+                        <button class="output-tab active" data-output="unitcell">Unit Cell</button>
+                        <button class="output-tab" data-output="supercell">Supercell</button>
+                    </div>
+                    <div class="viewer-3d" id="output-viewer">
+                        <div class="viewer-placeholder">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1">
+                                <path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/>
+                                <polyline points="3.27 6.96 12 12.01 20.73 6.96"/>
+                                <line x1="12" y1="22.08" x2="12" y2="12"/>
+                            </svg>
+                            <p>Generated structure</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="lattice-params" id="lattice-params">
+                    <h4>Lattice Parameters</h4>
+                    <div class="lattice-grid">
+                        <div class="lattice-item">
+                            <span class="lattice-label">a</span>
+                            <span class="lattice-value" id="lat-a">—</span>
+                        </div>
+                        <div class="lattice-item">
+                            <span class="lattice-label">b</span>
+                            <span class="lattice-value" id="lat-b">—</span>
+                        </div>
+                        <div class="lattice-item">
+                            <span class="lattice-label">c</span>
+                            <span class="lattice-value" id="lat-c">—</span>
+                        </div>
+                        <div class="lattice-item">
+                            <span class="lattice-label">α</span>
+                            <span class="lattice-value" id="lat-alpha">—</span>
+                        </div>
+                        <div class="lattice-item">
+                            <span class="lattice-label">β</span>
+                            <span class="lattice-value" id="lat-beta">—</span>
+                        </div>
+                        <div class="lattice-item">
+                            <span class="lattice-label">γ</span>
+                            <span class="lattice-value" id="lat-gamma">—</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="download-section">
+                    <button class="btn btn-secondary btn-full" id="download-unitcell" disabled>
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/>
+                        </svg>
+                        Download Unit Cell CIF
+                    </button>
+                    <button class="btn btn-secondary btn-full" id="download-supercell" disabled>
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/>
+                        </svg>
+                        Download Supercell CIF
+                    </button>
+                    <button class="btn btn-accent btn-full" id="download-all" disabled>
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="3" y="3" width="18" height="18" rx="2"/>
+                            <path d="M12 8v8M8 12l4 4 4-4"/>
+                        </svg>
+                        Download All (ZIP)
+                    </button>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Documentation View (hidden by default) -->
+    <div class="docs-view" id="docs-view" style="display: none;">
+        <div class="docs-container">
+            <nav class="docs-sidebar" id="docs-sidebar">
+                <h3>Documentation</h3>
+                <ul class="docs-nav" id="docs-nav"></ul>
+            </nav>
+            <article class="docs-content" id="docs-content">
+                <div class="empty-state">
+                    <p>Select a section from the sidebar</p>
+                </div>
+            </article>
+        </div>
+    </div>
+
+    <!-- Progress Overlay -->
+    <div class="progress-overlay" id="progress-overlay">
+        <div class="progress-modal">
+            <div class="progress-spinner"></div>
+            <h3>Generating COF Structure</h3>
+            <p id="progress-message">Initializing model...</p>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progress-fill"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Container -->
+    <div class="toast-container" id="toast-container"></div>
+
+    <!-- Email Registration Modal -->
+    <div class="modal-overlay" id="email-modal" style="display:none;">
+        <div class="modal-dialog">
+            <h3>Register to Upload</h3>
+            <p>Enter your email to upload custom building blocks.</p>
+            <input type="email" class="modal-input" id="email-input" placeholder="you@example.com">
+            <div class="modal-actions">
+                <button class="btn btn-secondary modal-cancel-btn" id="email-cancel-btn">Cancel</button>
+                <button class="btn btn-primary" id="email-submit-btn">Continue</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Create Database Modal -->
+    <div class="modal-overlay" id="create-db-modal" style="display:none;">
+        <div class="modal-dialog">
+            <h3>Create New Database</h3>
+            <p>Enter a name for your personal building blocks database.</p>
+            <input type="text" class="modal-input" id="db-name-input" placeholder="My COF Database">
+            <div class="modal-actions">
+                <button class="btn btn-secondary modal-cancel-btn" id="create-db-cancel-btn">Cancel</button>
+                <button class="btn btn-primary" id="create-db-submit-btn">Create</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Delete Confirmation Modal -->
+    <div class="modal-overlay" id="delete-modal" style="display:none;">
+        <div class="modal-dialog">
+            <h3>Delete</h3>
+            <p id="delete-modal-message">Are you sure you want to delete this?</p>
+            <div class="modal-actions">
+                <button class="btn btn-secondary modal-cancel-btn" id="delete-cancel-btn">Cancel</button>
+                <button class="btn btn-danger" id="delete-confirm-btn">Delete</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recipe Submission Modal -->
+    <div class="modal-overlay" id="recipe-modal" style="display:none;">
+        <div class="modal-dialog recipe-dialog">
+            <h3>Save Recipe</h3>
+            <p>Share your successful COF recipe with the community.</p>
+            <div class="recipe-form">
+                <label class="recipe-field-label">Recipe Name</label>
+                <input type="text" class="modal-input" id="recipe-name" placeholder="My COF Recipe">
+                <label class="recipe-field-label">Topology</label>
+                <input type="text" class="modal-input" id="recipe-topology" readonly>
+                <label class="recipe-field-label">Building Blocks</label>
+                <div class="recipe-bb-summary" id="recipe-bb-summary"></div>
+                <label class="recipe-field-label">Description (optional)</label>
+                <textarea class="modal-input" id="recipe-description" rows="2" placeholder="Describe your COF recipe..."></textarea>
+            </div>
+            <div class="modal-actions">
+                <button class="btn btn-secondary modal-cancel-btn" id="recipe-skip-btn">Skip</button>
+                <button class="btn btn-primary" id="recipe-submit-btn">Submit Recipe</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="./js/app.js"></script>
+</body>
+</html>
