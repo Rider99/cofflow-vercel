@@ -1054,14 +1054,13 @@ function renderValidationChecks(checks) {
     const checkNames = {
         'ase_read': 'ASE Read',
         'pymatgen_read': 'Pymatgen Read',
-        'bonds': 'Bond Analysis',
+        'bond_analysis': 'Bond Analysis',
         'connectivity': 'Connectivity',
         'rdkit': 'RDKit Sanitization',
-        'physical_validity': 'Physical Validity',
         'dimensionality': 'Dimensionality'
     };
 
-    const checkOrder = ['ase_read', 'pymatgen_read', 'bonds', 'connectivity', 'rdkit', 'physical_validity', 'dimensionality'];
+    const checkOrder = ['ase_read', 'pymatgen_read', 'bond_analysis', 'connectivity', 'rdkit', 'dimensionality'];
 
     const statusIcons = {
         ok: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>',
@@ -1097,13 +1096,12 @@ function renderScoreBreakdown(scoring) {
     const checkNames = {
         'ase_read': 'ASE Read',
         'pymatgen_read': 'Pymatgen Read',
-        'bonds': 'Bond Analysis',
+        'bond_analysis': 'Bond Analysis',
         'connectivity': 'Connectivity',
         'rdkit': 'RDKit Sanitization',
-        'physical_validity': 'Physical Validity',
         'dimensionality': 'Dimensionality'
     };
-    const checkOrder = ['bonds', 'connectivity', 'physical_validity', 'rdkit', 'ase_read', 'pymatgen_read', 'dimensionality'];
+    const checkOrder = ['bond_analysis', 'connectivity', 'rdkit', 'ase_read', 'pymatgen_read', 'dimensionality'];
     const orderedKeys = [
         ...checkOrder.filter(k => k in breakdown),
         ...Object.keys(breakdown).filter(k => !checkOrder.includes(k))
