@@ -422,7 +422,7 @@ async function generateCOF() {
             progressFill.style.width = pct + '%';
         }, 500);
 
-        progressMessage.textContent = 'Sampling 50 candidates and looking for a fully validated structure... (~40 s)';
+        progressMessage.textContent = 'Generating candidates with Best-of-50; stopping early if a perfect score is found.';
         progressFill.style.width = startPct + '%';
 
         const response = await fetch(`${API_BASE}/api/generate-cof`, {
@@ -1112,6 +1112,7 @@ function renderScoreBreakdown(scoring) {
     const bestScore = Number(scoring.winner_score || 0);
     const maxScore = Number(scoring.max_score || 0);
     const nSamples = scoring.n_samples || allScores.length || 1;
+    const maxSamples = scoring.max_samples || nSamples;
     const winnerIndex = scoring.winner_index;
     const scoreRange = allScores.length
         ? `${Math.min(...allScores).toFixed(1)}-${Math.max(...allScores).toFixed(1)}`
@@ -1122,11 +1123,12 @@ function renderScoreBreakdown(scoring) {
         <div class="validation-section score-section">
             <div class="validation-header">
                 <h4 style="margin: 0;">Best-of-${nSamples} Selection</h4>
-                <span class="score-pill">${bestScore.toFixed(1)} / ${maxScore.toFixed(0)}</span>
+                <span class="score-pill" title="Score is additive, not normalized. Pass earns full check weight, warn earns half, fail earns 0. Connectivity gets partial credit as weight divided by component count, so 0.75 can display as 0.8.">${bestScore.toFixed(1)} / ${maxScore.toFixed(0)}</span>
             </div>
 
             <div class="score-summary">
                 <span>Winner: candidate ${winnerIndex !== undefined ? winnerIndex + 1 : 'n/a'}</span>
+                <span>${scoring.stopped_early ? `Stopped early before ${maxSamples}` : `Max ${maxSamples}`}</span>
                 <span>Candidate scores: ${scoreRange}</span>
                 ${scoring.total_time_s !== undefined ? `<span>Total: ${scoring.total_time_s}s</span>` : ''}
             </div>
