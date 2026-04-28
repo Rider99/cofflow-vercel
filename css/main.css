@@ -1474,6 +1474,48 @@ input[type="text"]::placeholder {
     font-size: 0.8rem;
 }
 
+.score-section .validation-header {
+    justify-content: space-between;
+}
+
+.score-pill {
+    padding: var(--space-xs) var(--space-sm);
+    border-radius: var(--radius-full);
+    background: rgba(99, 102, 241, 0.15);
+    color: var(--primary);
+    border: 1px solid rgba(99, 102, 241, 0.3);
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.score-summary {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-sm);
+    color: var(--text-secondary);
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+}
+
+.score-earned {
+    min-width: 64px;
+    color: var(--text-secondary);
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    text-align: right;
+}
+
+.score-note {
+    margin-top: var(--space-md);
+    padding: var(--space-sm) var(--space-md);
+    border-left: 3px solid var(--warning);
+    border-radius: var(--radius-sm);
+    background: rgba(245, 158, 11, 0.12);
+    color: var(--text-secondary);
+    font-size: 0.85rem;
+}
+
 .validation-toggle {
     display: flex;
     align-items: center;

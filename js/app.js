@@ -387,6 +387,7 @@ async function generateCOF() {
     const progressOverlay = document.getElementById('progress-overlay');
     const progressMessage = document.getElementById('progress-message');
     const progressFill = document.getElementById('progress-fill');
+    let progressTimer = null;
     
     progressOverlay.classList.add('active');
     progressMessage.textContent = 'Preparing building blocks...';
@@ -409,7 +410,20 @@ async function generateCOF() {
         console.log(`Generating COF with ${linkerCount} linkers and ${nodeCount} nodes, supercell: ${supercellX}x${supercellY}x${supercellZ}`);
         
         progressMessage.textContent = `Loading model (${state.selectedModel || state.defaultModel})...`;
-        progressFill.style.width = '30%';
+        progressFill.style.width = '20%';
+
+        const startPct = 25;
+        const endPct = 90;
+        const estSeconds = 40;
+        let elapsed = 0;
+        progressTimer = setInterval(() => {
+            elapsed += 0.5;
+            const pct = Math.min(startPct + (endPct - startPct) * (elapsed / estSeconds), endPct);
+            progressFill.style.width = pct + '%';
+        }, 500);
+
+        progressMessage.textContent = 'Sampling 50 candidates and looking for a fully validated structure... (~40 s)';
+        progressFill.style.width = startPct + '%';
 
         const response = await fetch(`${API_BASE}/api/generate-cof`, {
             method: 'POST',
@@ -421,25 +435,19 @@ async function generateCOF() {
                 model: state.selectedModel || state.defaultModel
             })
         });
-        
-        progressMessage.textContent = 'Generating COF structure...';
-        progressFill.style.width = '50%';
-        
+
+        clearInterval(progressTimer);
+        progressTimer = null;
+
+        progressMessage.textContent = 'Processing results...';
+        progressFill.style.width = '95%';
+
         const data = await response.json();
         
         if (data.error) {
             throw new Error(data.error);
         }
-        
-        progressMessage.textContent = 'Validating structure...';
-        progressFill.style.width = '80%';
-        
-        // Small delay to show validation step
-        await new Promise(resolve => setTimeout(resolve, 300));
-        
-        progressMessage.textContent = 'Processing results...';
-        progressFill.style.width = '95%';
-        
+
         state.generatedResult = data;
         displayResults(data);
         
@@ -473,6 +481,7 @@ async function generateCOF() {
         }
         
     } catch (error) {
+        if (progressTimer) clearInterval(progressTimer);
         progressOverlay.classList.remove('active');
         progressFill.style.width = '0%';
         showToast('error', `Generation failed: ${error.message}`);
@@ -965,6 +974,8 @@ function displayResults(data) {
                 </div>
             </div>
         </div>
+
+        ${renderScoreBreakdown(data.scoring)}
         
         <div class="result-card">
             <h4>Unit Cell</h4>
@@ -989,6 +1000,18 @@ function displayResults(data) {
         toggle.querySelector('span').textContent = 
             details.classList.contains('visible') ? 'Hide detailed checks' : 'Show detailed checks';
     });
+
+    // Setup score breakdown toggle
+    const scoreToggle = document.getElementById('score-toggle');
+    const scoreDetails = document.getElementById('score-details');
+    if (scoreToggle && scoreDetails) {
+        scoreToggle.addEventListener('click', () => {
+            scoreToggle.classList.toggle('expanded');
+            scoreDetails.classList.toggle('visible');
+            scoreToggle.querySelector('span').textContent =
+                scoreDetails.classList.contains('visible') ? 'Hide score breakdown' : 'Show score breakdown';
+        });
+    }
     
     // Update lattice parameters
     updateLatticeParams(data.lattice);
@@ -1065,6 +1088,78 @@ function renderValidationChecks(checks) {
             </div>
         `;
     }).join('');
+}
+
+function renderScoreBreakdown(scoring) {
+    if (!scoring) return '';
+
+    const breakdown = scoring.breakdown || {};
+    const checkNames = {
+        'ase_read': 'ASE Read',
+        'pymatgen_read': 'Pymatgen Read',
+        'bonds': 'Bond Analysis',
+        'connectivity': 'Connectivity',
+        'rdkit': 'RDKit Sanitization',
+        'physical_validity': 'Physical Validity',
+        'dimensionality': 'Dimensionality'
+    };
+    const checkOrder = ['bonds', 'connectivity', 'physical_validity', 'rdkit', 'ase_read', 'pymatgen_read', 'dimensionality'];
+    const orderedKeys = [
+        ...checkOrder.filter(k => k in breakdown),
+        ...Object.keys(breakdown).filter(k => !checkOrder.includes(k))
+    ];
+    const allScores = Array.isArray(scoring.all_scores) ? scoring.all_scores : [];
+    const bestScore = Number(scoring.winner_score || 0);
+    const maxScore = Number(scoring.max_score || 0);
+    const nSamples = scoring.n_samples || allScores.length || 1;
+    const winnerIndex = scoring.winner_index;
+    const scoreRange = allScores.length
+        ? `${Math.min(...allScores).toFixed(1)}-${Math.max(...allScores).toFixed(1)}`
+        : 'n/a';
+    const showSelectionMessage = scoring.selected_valid_candidate === false && scoring.selection_message;
+
+    return `
+        <div class="validation-section score-section">
+            <div class="validation-header">
+                <h4 style="margin: 0;">Best-of-${nSamples} Selection</h4>
+                <span class="score-pill">${bestScore.toFixed(1)} / ${maxScore.toFixed(0)}</span>
+            </div>
+
+            <div class="score-summary">
+                <span>Winner: candidate ${winnerIndex !== undefined ? winnerIndex + 1 : 'n/a'}</span>
+                <span>Candidate scores: ${scoreRange}</span>
+                ${scoring.total_time_s !== undefined ? `<span>Total: ${scoring.total_time_s}s</span>` : ''}
+            </div>
+
+            ${showSelectionMessage ? `<div class="score-note">${scoring.selection_message}</div>` : ''}
+
+            <div class="validation-toggle" id="score-toggle">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="6 9 12 15 18 9"/>
+                </svg>
+                <span>Show score breakdown</span>
+            </div>
+
+            <div class="validation-details" id="score-details">
+                <div class="validation-checks">
+                    ${orderedKeys.map(key => {
+                        const item = breakdown[key] || {};
+                        const status = item.status || 'pending';
+                        const earned = Number(item.earned || 0);
+                        const weight = Number(item.weight || 0);
+                        return `
+                            <div class="validation-check score-check">
+                                <div class="check-icon ${status}">${status === 'ok' ? '✓' : status === 'warn' ? '!' : status === 'fail' ? '×' : '-'}</div>
+                                <span class="check-name">${checkNames[key] || key}</span>
+                                <span class="score-earned">${earned.toFixed(1)} / ${weight.toFixed(0)}</span>
+                                <span class="check-message">${item.message || ''}</span>
+                            </div>
+                        `;
+                    }).join('')}
+                </div>
+            </div>
+        </div>
+    `;
 }
 
 function updateLatticeParams(lattice) {
