@@ -422,7 +422,7 @@ async function generateCOF() {
             progressFill.style.width = pct + '%';
         }, 500);
 
-        progressMessage.textContent = 'Generating candidates with Best-of-50; stopping early if a perfect score is found.';
+        progressMessage.textContent = 'Generating candidates with Best-of-30; stopping early if a perfect score is found.';
         progressFill.style.width = startPct + '%';
 
         const response = await fetch(`${API_BASE}/api/generate-cof`, {
