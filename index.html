@@ -20,8 +20,11 @@
 
     <!-- Header -->
     <header class="main-header">
-        <div class="logo">
-            <div class="logo-icon">
+        <a class="logo" href="./" aria-label="COFFlow home">
+            <span class="logo-image-wrap">
+                <img src="./images/cofflow-logo.png" alt="COFFlow" class="app-logo">
+            </span>
+            <div class="logo-icon" aria-hidden="true">
                 <svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <circle cx="20" cy="8" r="4" fill="currentColor"/>
                     <circle cx="8" cy="28" r="4" fill="currentColor"/>
@@ -32,7 +35,7 @@
                 </svg>
             </div>
             <span class="logo-text">COFFlow</span>
-        </div>
+        </a>
         <nav class="nav-links">
             <a href="#" class="nav-link active" id="nav-generator">Generator</a>
             <a href="#" class="nav-link" id="nav-docs">Documentation</a>
@@ -219,14 +222,14 @@
         <!-- Center Panel: Configuration & Visualization -->
         <section class="panel center-panel">
             <div class="tabs">
-                <button class="tab active" data-tab="configure">Configure</button>
+                <button class="tab" data-tab="configure">Configure</button>
                 <button class="tab" data-tab="preview">Preview</button>
                 <button class="tab" data-tab="results">Results</button>
-                <button class="tab" data-tab="examples">Examples</button>
+                <button class="tab active" data-tab="examples">Examples</button>
             </div>
 
             <!-- Configure Tab -->
-            <div class="tab-content active" id="tab-configure">
+            <div class="tab-content" id="tab-configure">
                 <!-- Selected Building Blocks with Preview -->
                 <div class="config-selected-container">
                     <!-- Linkers Row: Selection + Preview -->
@@ -427,7 +430,7 @@
             </div>
 
             <!-- Examples Tab -->
-            <div class="tab-content" id="tab-examples">
+            <div class="tab-content active" id="tab-examples">
                 <div class="examples-header">
                     <h3>COF Examples</h3>
                     <p class="examples-description">

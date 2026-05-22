@@ -106,6 +106,9 @@ async function initializeApp() {
     // Load classified building blocks (main database)
     await loadClassifiedBuildingBlocks();
 
+    // Load examples for the default landing tab
+    await loadExamples();
+
     // Load user databases if email is set
     if (state.userEmail) {
         await loadUserDatabases();
