@@ -85,7 +85,7 @@ const state = {
 
 // Get viewer background color based on current theme
 function getViewerBackgroundColor() {
-    const theme = document.documentElement.getAttribute('data-theme') || 'dark';
+    const theme = document.documentElement.getAttribute('data-theme') || 'light';
     return theme === 'light' ? '#e2e8f0' : 'rgb(26, 34, 52)';
 }
 
@@ -1979,13 +1979,13 @@ function setupEventListeners() {
 // Theme Management (Dark/Light Mode)
 // ============================================================
 function initializeTheme() {
-    const savedTheme = localStorage.getItem('cofflow-theme') || 'dark';
+    const savedTheme = localStorage.getItem('cofflow-theme') || 'light';
     document.documentElement.setAttribute('data-theme', savedTheme);
     updateThemeIcon(savedTheme);
 }
 
 function toggleTheme() {
-    const currentTheme = document.documentElement.getAttribute('data-theme') || 'dark';
+    const currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
     const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
     
     document.documentElement.setAttribute('data-theme', newTheme);
